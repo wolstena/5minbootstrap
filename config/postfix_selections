@@ -1,2 +1,2 @@
-postfix/mailname string your.hostname.com
+postfix/mailname string {{ ansible_hostname }}
 postfix/main_mailer_type string 'Internet Site'
