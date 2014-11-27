@@ -5,6 +5,7 @@
   vars:
   - ubuntu_release: precise
   - logwatch_email: paul.wolstenholme@cbc.ca
+  - nullmailer_email: musicportal.alerts.informational@cbc.ca
   #- deploy_password: "{{ lookup('password', '/tmp/passwordfile') }}" 
     # crypted password, generated on a Linux box using: echo 'import crypt,getpass; print crypt.crypt(getpass.getpass(), "$6$AC3bdCF7!")' | python -
 
@@ -112,7 +113,7 @@
     lineinfile: 
       dest=/etc/nullmailer/adminaddr 
       regexp="^musicportal\.alerts\.informational@cbc\.ca" 
-      line="musicportal.alerts.informational@cbc.ca" 
+      line="{{ nullmailer_email }}" 
       state=present 
       create=yes
       backup=yes      
