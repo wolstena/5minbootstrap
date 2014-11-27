@@ -1,7 +1,5 @@
 ---
 - hosts: newservers
-  connection: local
-  sudo: true
   vars:
   - ubuntu_release: precise
   - logwatch_email: paul.wolstenholme@cbc.ca
@@ -25,11 +23,17 @@
   - name: Install screen
     apt: pkg=screen state=present
 
+  - name: Add admin group
+    group: name=admin state=present
+
   - name: Add deployment user
     user: name=r3deploy password={{ deploy_pass }} groups=admin
 
-  - name: Add authorized deploy key for Fred
+  - name: Add authorized deploy key for r3deploy
     authorized_key: user=r3deploy key="{{ lookup('file', 'id_rsa.pub') }}"
+
+  - name: Add authorized deploy key for r3adm
+    authorized_key: user=r3adm="{{ lookup('file', 'id_rsa.pub') }}"
 
   - name: Remove sudo group rights
     lineinfile: 
