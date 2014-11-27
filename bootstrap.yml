@@ -87,7 +87,7 @@
     lineinfile: 
       dest=/etc/nullmailer/remotes
       regexp="^smtp\.r3live\.cbcr3\.com" 
-      line="smtp.r3live.cbcr3.com smtp -" 
+      line="smtp.r3live.cbcr3.com smtp" 
       state=present 
       create=yes
       backup=yes
@@ -107,6 +107,15 @@
       regexp="^{{ansible_hostname}}\.r3live\.cbcr3\.com" 
       line="{{ansible_hostname }}.r3live.cbcr3.com" 
       state=present 
+      create=yes
+      backup=yes
+
+  - name: Setup default host
+    lineinfile:
+      dest=/etc/nullmailer/defaulthost
+      regexp="^r3live\.cbcr3\.com"
+      line="r3live.cbcr3.com"
+      state=present
       create=yes
       backup=yes
       
