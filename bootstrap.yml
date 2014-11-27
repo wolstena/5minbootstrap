@@ -10,6 +10,7 @@
   tasks:
   - name: Add nullmailer repositories
     apt_repository: repo='ppa:mikko-red-innovation/ppa' state=present
+    when: "'postfix' not in ansible_hostname"
     
   - name: Update APT package cache
     apt: update_cache=yes
@@ -33,7 +34,7 @@
     authorized_key: user=r3deploy key="{{ lookup('file', 'id_rsa.pub') }}"
 
   - name: Add authorized deploy key for r3adm
-    authorized_key: user=r3adm="{{ lookup('file', 'id_rsa.pub') }}"
+    authorized_key: user=r3adm key="{{ lookup('file', 'id_rsa.pub') }}"
 
   - name: Remove sudo group rights
     lineinfile: 
@@ -96,9 +97,11 @@
   - name: Uninstall postfix
     apt: pkg=postfix state=absent
     notify: Stop postfix
+    when: "'postfix' not in ansible_hostname" 
       
   - name: Install Nullmailer to relay mail
     apt: pkg=nullmailer state=present
+    when: "'postfix' not in ansible_hostname"
     
   - name: Setup upstream smtp
     lineinfile: 
@@ -108,6 +111,7 @@
       state=present 
       create=yes
       backup=yes
+    when: "'postfix' not in ansible_hostname"
             
   - name: Setup domain
     lineinfile: 
@@ -117,6 +121,7 @@
       state=present 
       create=yes
       backup=yes
+    when: "'postfix' not in ansible_hostname"
       
   - name: Setup me
     lineinfile: 
@@ -126,6 +131,8 @@
       state=present 
       create=yes
       backup=yes
+    when: "'postfix' not in ansible_hostname"
+
 
   - name: Setup default host
     lineinfile:
@@ -135,6 +142,8 @@
       state=present
       create=yes
       backup=yes
+    when: "'postfix' not in ansible_hostname"
+
       
   - name: Setup admin user
     lineinfile: 
@@ -144,6 +153,7 @@
       state=present 
       create=yes
       backup=yes      
+    when: "'postfix' not in ansible_hostname"
 
   - name: Install logwatch
     apt: pkg=logwatch state=present
