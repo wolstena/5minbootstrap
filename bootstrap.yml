@@ -85,8 +85,8 @@
     
   - name: Setup upstream smtp
     lineinfile: 
-      dest=/etc/nullmailer/defaultdomain 
-      regexp="^r3live\.cbcr3\.com" 
+      dest=/etc/nullmailer/remotes
+      regexp="^smtp\.r3live\.cbcr3\.com" 
       line="smtp.r3live.cbcr3.com smtp -" 
       state=present 
       create=yes
@@ -94,16 +94,17 @@
             
   - name: Setup domain
     lineinfile: 
-      dest=/etc/nullmailer/remotes 
-      regexp="^smtp\.r3live\.cbcr3\.com" 
-      line="smtp.mandrillapp.com smtp" 
+      dest=/etc/nullmailer/defaultdomain
+      regexp="^r3live\.cbcr3\.com" 
+      line="r3live.cbcr3.com" 
       state=present 
       create=yes
       backup=yes
       
-  - lineinfile: 
-      dest=/etc/nullmailer/defaultdomain 
-      regexp="^{{ansible_hostname}}\.cbcr3\.com" 
+  - name: Setup me
+    lineinfile: 
+      dest=/etc/nullmailer/me
+      regexp="^{{ansible_hostname}}\.r3live\.cbcr3\.com" 
       line="{{ansible_hostname }}.r3live.cbcr3.com" 
       state=present 
       create=yes
