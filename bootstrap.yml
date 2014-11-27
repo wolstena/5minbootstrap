@@ -1,5 +1,7 @@
 ---
 - hosts: newservers
+  connection: local
+  sudo: true
   vars:
   - ubuntu_release: precise
   - logwatch_email: paul.wolstenholme@cbc.ca
@@ -19,8 +21,8 @@
   - name: Add deployment user
     user: name=r3deploy password=$deploy_pass
 
-  - name: Add authorized deploy key for R3 Admins
-    authorized_key: user=deploy key='$FILE(id_rsa.pub)'
+  - name: Add authorized deploy key for Fred
+    authorized_key: user=r3deploy key="{{ lookup('file', 'id_rsa.pub') }}"
 
   - name: Remove sudo group rights
     lineinfile: 
@@ -92,4 +94,4 @@
 
   handlers:
   - name: Restart sshd
-    service: name=sshd state=restarted
+    service: name=ssh state=restarted
