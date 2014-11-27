@@ -9,6 +9,9 @@
     # crypted password, generated on a Linux box using: echo 'import crypt,getpass; print crypt.crypt(getpass.getpass(), "$6$AC3bdCF7!")' | python -
 
   tasks:
+  - name: Add nullmailer repositories
+    apt_repository: repo='ppa:mikko-red-innovation/ppa' state=present
+    
   - name: Update APT package cache
     apt: update_cache=yes
 
@@ -16,7 +19,7 @@
     command: apt-get upgrade
 
   - name: Install fail2ban
-    apt: pkg=fail2ban state=installed
+    apt: pkg=fail2ban state=present
 
   - name: Add deployment user
     user: name=r3deploy password=$deploy_pass
@@ -71,17 +74,51 @@
       regexp="$ubuntu_release-updates"
       backup=yes
       state=absent
-
-  - name: Copy debconf selections so that Postfix can configure itself non-interactively
-    template: 
-      src=config/postfix_selections  
-      dest=/tmp/postfix_selections
-
-  - name: Set up Postfix to relay mail
-    command: debconf-set-selections /tmp/postfix_selections
+      
+  - name: Uninstall postfix
+    apt: pkg=postfix state=absent
+    notify: Stop postfix
+      
+  - name: Install Nullmailer to relay mail
+    apt: pkg=nullmailer state=present
+    
+  - name: Setup upstream smtp
+    lineinfile: 
+      dest=/etc/nullmailer/defaultdomain 
+      regexp="^r3live\.cbcr3\.com" 
+      line="smtp.r3live.cbcr3.com smtp -" 
+      state=present 
+      create=yes
+      backup=yes
+            
+  - name: Setup domain
+    lineinfile: 
+      dest=/etc/nullmailer/remotes 
+      regexp="^smtp\.r3live\.cbcr3\.com" 
+      line="smtp.mandrillapp.com smtp" 
+      state=present 
+      create=yes
+      backup=yes
+      
+  - lineinfile: 
+      dest=/etc/nullmailer/defaultdomain 
+      regexp="^{{ansible_hostname}}\.cbcr3\.com" 
+      line="{{ansible_hostname }}.r3live.cbcr3.com" 
+      state=present 
+      create=yes
+      backup=yes
+      
+  - name: Setup admin user
+    lineinfile: 
+      dest=/etc/nullmailer/adminaddr 
+      regexp="^musicportal\.alerts\.informational@cbc\.ca" 
+      line="musicportal.alerts.informational@cbc.ca" 
+      state=present 
+      create=yes
+      backup=yes      
 
   - name: Install logwatch
-    apt: pkg=logwatch state=installed
+    apt: pkg=logwatch state=present
 
   - name: Make logwatch mail $logwatch_email daily
     lineinfile: 
@@ -95,3 +132,9 @@
   handlers:
   - name: Restart sshd
     service: name=ssh state=restarted
+    
+  - name: Stop postfix
+    service: name=postfix state=stopped
+  
+  - name: Reload nullmailer
+    service: name=nullmailer state=reload
