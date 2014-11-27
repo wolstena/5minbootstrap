@@ -19,7 +19,7 @@
   - name: Add deployment user
     user: name=r3deploy password=$deploy_pass
 
-  - name: Add authorized deploy key for Fred
+  - name: Add authorized deploy key for R3 Admins
     authorized_key: user=deploy key='$FILE(id_rsa.pub)'
 
   - name: Remove sudo group rights
