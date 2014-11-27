@@ -2,7 +2,7 @@
 - hosts: newservers
   vars:
   - ubuntu_release: precise
-  - logwatch_email: paul.wolstenholme@cbc.ca
+  - logwatch_email: musicportal.alerts.informational@cbc.ca
   - nullmailer_email: musicportal.alerts.informational@cbc.ca
   #- deploy_password: "{{ lookup('password', '/tmp/passwordfile') }}" 
     # crypted password, generated on a Linux box using: echo 'import crypt,getpass; print crypt.crypt(getpass.getpass(), "$6$AC3bdCF7!")' | python -
@@ -26,6 +26,9 @@
 
   - name: Add admin group
     group: name=admin state=present
+
+  - name: Add r3adm user to admin group
+    user: name=r3adm groups=admin
 
   - name: Add deployment user
     user: name=r3deploy password={{ deploy_pass }} groups=admin
