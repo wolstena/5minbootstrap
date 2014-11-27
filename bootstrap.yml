@@ -17,13 +17,16 @@
     apt: update_cache=yes
 
   - name: Run apt-get upgrade
-    command: apt-get upgrade
+    apt: upgrade=safe
 
   - name: Install fail2ban
     apt: pkg=fail2ban state=present
 
+  - name: Install screen
+    apt: pkg=screen state=present
+
   - name: Add deployment user
-    user: name=r3deploy password=$deploy_pass
+    user: name=r3deploy password={{ deploy_pass }} groups=admin
 
   - name: Add authorized deploy key for Fred
     authorized_key: user=r3deploy key="{{ lookup('file', 'id_rsa.pub') }}"
@@ -31,14 +34,24 @@
   - name: Remove sudo group rights
     lineinfile: 
       dest=/etc/sudoers regexp="^%sudo" 
+      validate='visudo -cf %s'
       backup=yes 
       state=absent
+
+  - name: Modify sudo admin group rights
+    lineinfile: 
+      dest=/etc/sudoers regexp="^%admin" 
+      line="%admin ALL=(root) ALL"
+      validate='visudo -cf %s'
+      backup=yes 
+      state=present
 
   - name: Add deploy user to sudoers
     lineinfile: 
       dest=/etc/sudoers 
-      regexp="deploy ALL" 
-      line="deploy ALL=(ALL) ALL"
+      regexp="r3deploy ALL" 
+      line="r3deploy ALL=(root) NOPASSWD:ALL"
+      validate='visudo -cf %s'
       backup=yes
       state=present
 
